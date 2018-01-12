@@ -26,7 +26,40 @@ module.exports = new Class({
   
   api: {},
   
-  methods: [],
+  methods: [
+		'create',
+		'exists',
+		'destroy',
+		'get',
+		'view',
+		'save',
+		'merge',
+		'temporaryView',
+		'remove',
+		'update',
+		'changes'
+		//'feed' //https://www.npmjs.com/package/cradle#streaming
+		/**
+		 * @attachements
+		 * https://www.npmjs.com/package/cradle#attachments
+		 * */
+		 
+		 /**
+			* @server
+			* https://www.npmjs.com/package/cradle#couchdb-server-level
+			* 
+			* */
+	 
+		 /**
+			* @database
+			* https://www.npmjs.com/package/cradle#database-level
+			* */
+			
+		/** 
+		 * @cache
+		 * https://www.npmjs.com/package/cradle#cache-api
+		 * */ 
+	],
   
   authorization:null,
   //authentication: null,
@@ -34,9 +67,16 @@ module.exports = new Class({
   
   options: {
 			
-		scheme: 'http',
-		url: '127.0.0.1',
+		host: '127.0.0.1',
 		port: 5984,
+		db: '',
+		
+		cradle: {
+			cache: true,
+			raw: false,
+			forceSave: true,
+		},
+		
 		
 		logs: null,
 		
@@ -140,7 +180,7 @@ module.exports = new Class({
 		
 		this.parent(options);//override default options
 		
-		//this.request = request;
+		this.request = new(cradle.Connection)(this.options.host, this.options.port, this.options.cradle).database(this.options.db);
 		
 
 		if(this.logger)
@@ -202,33 +242,32 @@ module.exports = new Class({
   apply_routes: function(routes, is_api){
 		var uri = '';
 		
-		if(this.options.authentication &&
-			this.options.authentication.basic &&
-			(this.options.authentication.user || this.options.authentication.username) &&
-			(this.options.authentication.pass || this.options.authentication.password))
-		{
-			var user = this.options.authentication.user || this.options.authentication.username;
-			var passwd = this.options.authentication.pass || this.options.authentication.password;
-			uri = this.options.scheme+'://'+user+':'+passwd+'@'+this.options.url+':'+this.options.port;
-		}
-		else{
-			uri = this.options.scheme+'://'+this.options.url+':'+this.options.port;
-		}
+		//if(this.options.authentication &&
+			//this.options.authentication.basic &&
+			//(this.options.authentication.user || this.options.authentication.username) &&
+			//(this.options.authentication.pass || this.options.authentication.password))
+		//{
+			//var user = this.options.authentication.user || this.options.authentication.username;
+			//var passwd = this.options.authentication.pass || this.options.authentication.password;
+			//uri = this.options.scheme+'://'+user+':'+passwd+'@'+this.options.url+':'+this.options.port;
+		//}
+		//else{
+			//uri = this.options.scheme+'://'+this.options.url+':'+this.options.port;
+		//}
 		
 		
-		var instance = null;
-		var api = this.options.api;
+		var instance = this;
+		//var api = this.options.api;
 		
-		if(is_api){
-			//path = ((typeof(api.path) !== "undefined") ? this.options.path+api.path : this.options.path).replace('//', '/');
-			instance = this.api;
-		}
-		else{
-			//path = (typeof(this.options.path) !== "undefined") ? this.options.path : '';
-			instance = this;
-		}
+		//if(is_api){
+			////path = ((typeof(api.path) !== "undefined") ? this.options.path+api.path : this.options.path).replace('//', '/');
+			//instance = this.api;
+		//}
+		//else{
+			////path = (typeof(this.options.path) !== "undefined") ? this.options.path : '';
+			//instance = this;
+		//}
 			
-		//Array.each(this.available_methods, function(verb){
 		Array.each(this.methods, function(verb){
 			
 			console.log('---VERB---');
@@ -240,191 +279,191 @@ module.exports = new Class({
 				console.log('---gets called??---')
 				console.log(arguments);
 				
-				var request;//the request object to return
+				//var request;//the request object to return
 				
-				var path = '';
-				if(is_api){
-					path = ((typeof(api.path) !== "undefined") ? this.options.path+api.path : this.options.path).replace('//', '/');
-				}
-				else{
-					path = (typeof(this.options.path) !== "undefined") ? this.options.path : '';
-				}
+				//var path = '';
+				//if(is_api){
+					//path = ((typeof(api.path) !== "undefined") ? this.options.path+api.path : this.options.path).replace('//', '/');
+				//}
+				//else{
+					//path = (typeof(this.options.path) !== "undefined") ? this.options.path : '';
+				//}
 				
 				
-				options = options || {};
+				//options = options || {};
 				
-				if(options.auth === false || options.auth === null){
-					delete options.auth;
-				}
-				else if(!options.auth &&
-					this.options.authentication &&
-					(this.options.authentication.user || this.options.authentication.username) &&
-					(this.options.authentication.pass || this.options.authentication.password))
-				{
-					options.auth = this.options.authentication;
-				}
+				//if(options.auth === false || options.auth === null){
+					//delete options.auth;
+				//}
+				//else if(!options.auth &&
+					//this.options.authentication &&
+					//(this.options.authentication.user || this.options.authentication.username) &&
+					//(this.options.authentication.pass || this.options.authentication.password))
+				//{
+					//options.auth = this.options.authentication;
+				//}
 				
-				var content_type = '';
-				var version = '';
+				//var content_type = '';
+				//var version = '';
 				
-				if(is_api){
-					content_type = (typeof(api.content_type) !== "undefined") ? api.content_type : '';
-					version = (typeof(api.version) !== "undefined") ? api.version : '';
-				}
-				else{
-					content_type = (typeof(this.options.content_type) !== "undefined") ? this.options.content_type : '';
-				}
+				//if(is_api){
+					//content_type = (typeof(api.content_type) !== "undefined") ? api.content_type : '';
+					//version = (typeof(api.version) !== "undefined") ? api.version : '';
+				//}
+				//else{
+					//content_type = (typeof(this.options.content_type) !== "undefined") ? this.options.content_type : '';
+				//}
 				
-				var gzip = this.options.gzip || false;
+				//var gzip = this.options.gzip || false;
 				
 				console.log('---ROUTES---');
 				console.log(routes);
 				
-				if(routes[verb]){
-					var uri_matched = false;
+				//if(routes[verb]){
+					//var uri_matched = false;
 					
-					Array.each(routes[verb], function(route){
+					//Array.each(routes[verb], function(route){
 						
-						content_type = (typeof(route.content_type) !== "undefined") ? route.content_type : content_type;
-						gzip = route.gzip || false;
+						//content_type = (typeof(route.content_type) !== "undefined") ? route.content_type : content_type;
+						//gzip = route.gzip || false;
 						
-						var keys = []
-						var re = pathToRegexp(route.path, keys);
+						//var keys = []
+						//var re = pathToRegexp(route.path, keys);
 						
-						//console.log('route path: '+route.path);
-						////console.log(re.exec(options.uri));
-						//console.log('options.uri: '+options.uri);
-						//console.log(path);
-						//console.log('--------');
+						////console.log('route path: '+route.path);
+						//////console.log(re.exec(options.uri));
+						////console.log('options.uri: '+options.uri);
+						////console.log(path);
+						////console.log('--------');
 							
-						if(options.uri != null && re.test(options.uri) == true){
-							uri_matched = true;
+						//if(options.uri != null && re.test(options.uri) == true){
+							//uri_matched = true;
 							
-							var callbacks = [];
+							//var callbacks = [];
 							
-							/**
-							 * if no callbacks defined for a route, you should use callback_alt param
-							 * */
-							if(route.callbacks && route.callbacks.length > 0){
-								route.callbacks.each(function(fn){
-									//console.log('route function: ' + fn);
+							///**
+							 //* if no callbacks defined for a route, you should use callback_alt param
+							 //* */
+							//if(route.callbacks && route.callbacks.length > 0){
+								//route.callbacks.each(function(fn){
+									////console.log('route function: ' + fn);
 									
-									//if the callback function, has the same name as the verb, we had it already copied as "original_func"
-									if(fn == verb){
-										callbacks.push({ func: original_func.bind(this), name: fn });
-									}
-									else{
-										callbacks.push({ func: this[fn].bind(this), name: fn });
-									}
+									////if the callback function, has the same name as the verb, we had it already copied as "original_func"
+									//if(fn == verb){
+										//callbacks.push({ func: original_func.bind(this), name: fn });
+									//}
+									//else{
+										//callbacks.push({ func: this[fn].bind(this), name: fn });
+									//}
 									
-								}.bind(this));
-							}
-							
-							if(is_api){
-								//var versioned_path = '';
-								if(api.versioned_path === true && version != ''){
-									path = path + '/v'+semver.major(version);
-									//path += (typeof(route.path) !== "undefined") ? '/' + route.path : '';
-								}
-								else{
-									//path += (typeof(route.path) !== "undefined") ? '/' + route.path : '';
-								}
-							}
-							
-							//if(!is_api){
-								path += '/'+options.uri;
+								//}.bind(this));
 							//}
 							
-							path = path.replace('//', '/');
+							//if(is_api){
+								////var versioned_path = '';
+								//if(api.versioned_path === true && version != ''){
+									//path = path + '/v'+semver.major(version);
+									////path += (typeof(route.path) !== "undefined") ? '/' + route.path : '';
+								//}
+								//else{
+									////path += (typeof(route.path) !== "undefined") ? '/' + route.path : '';
+								//}
+							//}
 							
-							if(path == '/')
-								path = '';
+							////if(!is_api){
+								//path += '/'+options.uri;
+							////}
+							
+							//path = path.replace('//', '/');
+							
+							//if(path == '/')
+								//path = '';
 							
 							
 								
-							//console.log(path+options.uri);
-							//console.log('PATH');
-							//console.log(options.uri);
-							//console.log(options.uri);
+							////console.log(path+options.uri);
+							////console.log('PATH');
+							////console.log(options.uri);
+							////console.log(options.uri);
 							
-							var merged = {};
-							Object.merge(
-								merged,
-								options,
-								{ headers: this.options.headers },
-								{
-									baseUrl: uri,
-									//uri: path+options.uri,
-									uri: path,
-									gzip: gzip,
-									headers: {
-										'Content-Type': content_type
-									},
-									jar: this.options.jar
-								}
-							);
+							//var merged = {};
+							//Object.merge(
+								//merged,
+								//options,
+								//{ headers: this.options.headers },
+								//{
+									//baseUrl: uri,
+									////uri: path+options.uri,
+									//uri: path,
+									//gzip: gzip,
+									//headers: {
+										//'Content-Type': content_type
+									//},
+									//jar: this.options.jar
+								//}
+							//);
 							
-							console.log('---MERGED----');
-							console.log(merged);
-							//console.log(process.env.PROFILING_ENV);
-							//console.log(this.logger);
+							//console.log('---MERGED----');
+							//console.log(merged);
+							////console.log(process.env.PROFILING_ENV);
+							////console.log(this.logger);
 							
-							request = this.request[verb](
-								merged,
-								function(err, resp, body){
-									//console.log('--default callback---');
-									//console.log(arguments);
+							//request = this.request[verb](
+								//merged,
+								//function(err, resp, body){
+									////console.log('--default callback---');
+									////console.log(arguments);
 									
-									if(err){
-										this.fireEvent(this.ON_CONNECT_ERROR, {options: merged, uri: options.uri, route: route.path, error: err });
-									}
-									else{
-										this.fireEvent(this.ON_CONNECT, {options: merged, uri: options.uri, route: route.path, response: resp, body: body });
-									}
+									//if(err){
+										//this.fireEvent(this.ON_CONNECT_ERROR, {options: merged, uri: options.uri, route: route.path, error: err });
+									//}
+									//else{
+										//this.fireEvent(this.ON_CONNECT, {options: merged, uri: options.uri, route: route.path, response: resp, body: body });
+									//}
 
 									
-									if(typeof(callback_alt) == 'function' || callback_alt instanceof Function){
-										var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK[*callback_alt*]';
+									//if(typeof(callback_alt) == 'function' || callback_alt instanceof Function){
+										//var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK[*callback_alt*]';
 										
-										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
+										//if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
 										
-										callback_alt(err, resp, body, {options: merged, uri: options.uri, route: route.path });
+										//callback_alt(err, resp, body, {options: merged, uri: options.uri, route: route.path });
 										
-										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
-									}
-									else{
-										Array.each(callbacks, function(fn){
-											var callback = fn.func;
-											var name = fn.name;
+										//if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
+									//}
+									//else{
+										//Array.each(callbacks, function(fn){
+											//var callback = fn.func;
+											//var name = fn.name;
 											
-											var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK['+name+']';
+											//var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK['+name+']';
 											
-											if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
+											//if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
 											
-											callback(err, resp, body, {options: merged, uri: options.uri, route: route.path });
+											//callback(err, resp, body, {options: merged, uri: options.uri, route: route.path });
 											
-											if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
+											//if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
 											
-										}.bind(this))
-									}
+										//}.bind(this))
+									//}
 									
 										
-								}.bind(this)
-							);
-						}
+								//}.bind(this)
+							//);
+						//}
 						
-					}.bind(this));
+					//}.bind(this));
 					
-					if(!uri_matched)
-						throw new Error('No routes matched for URI: '+uri+path+options.uri);
-				}
-				else{
-					//console.log(routes);
-					throw new Error('No routes defined for method: '+verb.toUpperCase());
+					//if(!uri_matched)
+						//throw new Error('No routes matched for URI: '+uri+path+options.uri);
+				//}
+				//else{
+					////console.log(routes);
+					//throw new Error('No routes defined for method: '+verb.toUpperCase());
 					
-				}
+				//}
 				
-				return request;
+				//return request;
 				
 			}.bind(this, verb, this[verb]);//copy the original function if there are func like this.get, this.post, etc
 			
