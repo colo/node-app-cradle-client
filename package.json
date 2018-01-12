@@ -1,0 +1,22 @@
+{
+  "name": "app-cradle-client",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/colo/node-app-cradle-client.git"
+  },
+  "author": "Luciano Bueno",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/colo/node-app-cradle-client/issues"
+  },
+  "homepage": "https://github.com/colo/node-app-cradle-client#readme",
+  "dependencies": {
+    "cradle-pouchdb-server": "^0.7.1"
+  }
+}
