@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/colo/node-app-cradle-client#readme",
   "dependencies": {
-    "cradle-pouchdb-server": "^0.7.1"
+    "cradle-pouchdb-server": "^0.7.1",
+    "path-to-regexp": "^2.1.0"
   }
 }

@@ -3,9 +3,9 @@
 var App = require('node-app'),
 		path = require('path'),
 		fs = require('fs'),
-		cradle = require('cradle-pouchdb-server');
+		cradle = require('cradle-pouchdb-server'),
 		//request = require('request'),
-		//pathToRegexp = require('path-to-regexp'),
+		pathToRegexp = require('path-to-regexp');
 		//semver = require('semver');
 		
 
@@ -37,7 +37,7 @@ module.exports = new Class({
 		'temporaryView',
 		'remove',
 		'update',
-		'changes'
+		'changes',
 		//'feed' //https://www.npmjs.com/package/cradle#streaming
 		/**
 		 * @attachements
@@ -49,7 +49,9 @@ module.exports = new Class({
 			* https://www.npmjs.com/package/cradle#couchdb-server-level
 			* 
 			* */
-	 
+	 'info',
+	 'config',
+	 'uuids',
 		 /**
 			* @database
 			* https://www.npmjs.com/package/cradle#database-level
@@ -180,9 +182,11 @@ module.exports = new Class({
 		
 		this.parent(options);//override default options
 		
-		this.request = new(cradle.Connection)(this.options.host, this.options.port, this.options.cradle).database(this.options.db);
+		this.request = new(cradle.Connection)(this.options.host, this.options.port, this.options.cradle);
 		
-
+		//if(this.options.db);
+			//this.request.database(this.options.db);
+		
 		if(this.logger)
 			this.logger.extend_app(this);
 		
@@ -279,18 +283,18 @@ module.exports = new Class({
 				console.log('---gets called??---')
 				console.log(arguments);
 				
-				//var request;//the request object to return
+				var request;//the request object to return
 				
-				//var path = '';
+				var path = '';
 				//if(is_api){
 					//path = ((typeof(api.path) !== "undefined") ? this.options.path+api.path : this.options.path).replace('//', '/');
 				//}
 				//else{
-					//path = (typeof(this.options.path) !== "undefined") ? this.options.path : '';
+					path = (typeof(this.options.path) !== "undefined") ? this.options.path : '';
 				//}
 				
 				
-				//options = options || {};
+				options = options || {};
 				
 				//if(options.auth === false || options.auth === null){
 					//delete options.auth;
@@ -319,45 +323,51 @@ module.exports = new Class({
 				console.log('---ROUTES---');
 				console.log(routes);
 				
-				//if(routes[verb]){
-					//var uri_matched = false;
+				if(routes[verb]){
+					var uri_matched = false;
 					
-					//Array.each(routes[verb], function(route){
+					Array.each(routes[verb], function(route){
+						console.log('---ROUTE PATH---');
+						//console.log(route.path);
 						
 						//content_type = (typeof(route.content_type) !== "undefined") ? route.content_type : content_type;
 						//gzip = route.gzip || false;
 						
-						//var keys = []
-						//var re = pathToRegexp(route.path, keys);
+						route.path = route.path || '';
+						options.uri = options.uri || '';
 						
-						////console.log('route path: '+route.path);
-						//////console.log(re.exec(options.uri));
-						////console.log('options.uri: '+options.uri);
-						////console.log(path);
-						////console.log('--------');
+						var keys = []
+						var re = pathToRegexp(route.path, keys);
+						
+						console.log('route path: '+route.path);
+						console.log(re.exec(options.uri));
+						console.log('options.uri: '+options.uri);
+						console.log(path);
+						console.log(keys);
+						console.log('--------');
 							
-						//if(options.uri != null && re.test(options.uri) == true){
-							//uri_matched = true;
+						if(options.uri != null && re.test(options.uri) == true){
+							uri_matched = true;
 							
-							//var callbacks = [];
+							var callbacks = [];
 							
-							///**
-							 //* if no callbacks defined for a route, you should use callback_alt param
-							 //* */
-							//if(route.callbacks && route.callbacks.length > 0){
-								//route.callbacks.each(function(fn){
-									////console.log('route function: ' + fn);
+							/**
+							 * if no callbacks defined for a route, you should use callback_alt param
+							 * */
+							if(route.callbacks && route.callbacks.length > 0){
+								route.callbacks.each(function(fn){
+									//console.log('route function: ' + fn);
 									
-									////if the callback function, has the same name as the verb, we had it already copied as "original_func"
-									//if(fn == verb){
-										//callbacks.push({ func: original_func.bind(this), name: fn });
-									//}
-									//else{
-										//callbacks.push({ func: this[fn].bind(this), name: fn });
-									//}
+									//if the callback function, has the same name as the verb, we had it already copied as "original_func"
+									if(fn == verb){
+										callbacks.push({ func: original_func.bind(this), name: fn });
+									}
+									else{
+										callbacks.push({ func: this[fn].bind(this), name: fn });
+									}
 									
-								//}.bind(this));
-							//}
+								}.bind(this));
+							}
 							
 							//if(is_api){
 								////var versioned_path = '';
@@ -386,7 +396,7 @@ module.exports = new Class({
 							////console.log(options.uri);
 							////console.log(options.uri);
 							
-							//var merged = {};
+							var merged = {};
 							//Object.merge(
 								//merged,
 								//options,
@@ -403,65 +413,124 @@ module.exports = new Class({
 								//}
 							//);
 							
-							//console.log('---MERGED----');
-							//console.log(merged);
+							console.log('---MERGED----');
+							console.log(merged);
 							////console.log(process.env.PROFILING_ENV);
 							////console.log(this.logger);
 							
-							//request = this.request[verb](
-								//merged,
-								//function(err, resp, body){
-									////console.log('--default callback---');
-									////console.log(arguments);
-									
-									//if(err){
-										//this.fireEvent(this.ON_CONNECT_ERROR, {options: merged, uri: options.uri, route: route.path, error: err });
-									//}
-									//else{
-										//this.fireEvent(this.ON_CONNECT, {options: merged, uri: options.uri, route: route.path, response: resp, body: body });
-									//}
+							console.log('---VERB----')
+							//console.log(this.options.db);
+							console.log(verb);
+							
+							var req_func = null;
+							var db = keys[0];
+							var cache = keys[1];
+							
+							if(db){
+								var name = re.exec(options.uri)[1];
+								req_func = this.request['database'](name);
+								
+							}
+							else{
+								req_func = this.request;
+							}
+							//console.log(req_func);
+							//request = this.request.database(this.options.db)[verb](
+							
+							var response = function(err, resp, body){
+								console.log('--response callback---');
+								console.log(arguments);
+								
+								if(err){
+									//this.fireEvent(this.ON_CONNECT_ERROR, {options: merged, uri: options.uri, route: route.path, error: err });
+									this.fireEvent(this.ON_CONNECT_ERROR, {error: err });
+								}
+								else{
+									//this.fireEvent(this.ON_CONNECT, {options: merged, uri: options.uri, route: route.path, response: resp, body: body });
+									this.fireEvent(this.ON_CONNECT, {response: resp });
+								}
 
+								
+								if(typeof(callback_alt) == 'function' || callback_alt instanceof Function){
+									var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK[*callback_alt*]';
 									
-									//if(typeof(callback_alt) == 'function' || callback_alt instanceof Function){
-										//var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK[*callback_alt*]';
-										
-										//if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
-										
-										//callback_alt(err, resp, body, {options: merged, uri: options.uri, route: route.path });
-										
-										//if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
-									//}
-									//else{
-										//Array.each(callbacks, function(fn){
-											//var callback = fn.func;
-											//var name = fn.name;
-											
-											//var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK['+name+']';
-											
-											//if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
-											
-											//callback(err, resp, body, {options: merged, uri: options.uri, route: route.path });
-											
-											//if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
-											
-										//}.bind(this))
-									//}
+									if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
 									
+									callback_alt(err, resp, body, {options: merged, uri: options.uri, route: route.path });
+									
+									if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
+								}
+								else{
+									Array.each(callbacks, function(fn){
+										var callback = fn.func;
+										var name = fn.name;
 										
-								//}.bind(this)
-							//);
-						//}
+										var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK['+name+']';
+										
+										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
+										
+										callback(err, resp, body, {options: merged, uri: options.uri, route: route.path });
+										
+										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
+										
+									}.bind(this))
+								}
+								
+									
+							}.bind(this);
+							
+							var cache_result;
+							
+							if(cache){
+								console.log('---CACHE----');
+								console.log(cache);
+								//req_func.get(options.id, function(err, resp){
+									
+									//console.log('--cache result---',result);
+								
+								//});
+								cache_result = req_func.cache[verb](options.doc);
+								if(cache_result || cache.optional == false)
+									response(null, cache_result);
+							}
+							
+							if(!cache || (!cache_result && cache.optional)){
+								console.log('---NO CACHE----');
+								
+								if(options.doc){
+									//request = req_func[verb].pass([options.doc, response], this);
+									request = req_func[verb](
+										options.doc,
+										response
+									);
+								}
+								else{
+									//request = req_func[verb].pass(response, this);
+									request = req_func[verb](
+										response
+									);
+								}
+									
+								//request = req_func[verb](
+									////options.id,
+									//response
+								//);
+								//request.attempt();
+								
+							}
+							
+						}
 						
-					//}.bind(this));
+					}.bind(this));
 					
-					//if(!uri_matched)
-						//throw new Error('No routes matched for URI: '+uri+path+options.uri);
-				//}
-				//else{
-					////console.log(routes);
-					//throw new Error('No routes defined for method: '+verb.toUpperCase());
+					if(!uri_matched)
+						throw new Error('No routes matched for URI: '+uri+path+options.uri);
+				}
+				else{
+					//console.log(routes);
+					throw new Error('No routes defined for method: '+verb.toUpperCase());
 					
-				//}
+				}
 				
 				//return request;
 				
