@@ -15,7 +15,7 @@ var Authorization = require('node-express-authorization');
 
 
 
-module.exports = new Class({
+var AppCradleClient = new Class({
   //Implements: [Options, Events],
   Extends: App,
   
@@ -56,7 +56,7 @@ module.exports = new Class({
 			* @database
 			* https://www.npmjs.com/package/cradle#database-level
 			* */
-			
+		'compact',
 		/** 
 		 * @cache
 		 * https://www.npmjs.com/package/cradle#cache-api
@@ -182,7 +182,45 @@ module.exports = new Class({
 		
 		this.parent(options);//override default options
 		
+		/**
+		 * cradle
+		 *  - start
+		 * **/
+		//if(this.options.cradle){
+		//console.log('---this.options.cradle----');
+		//console.log(this.options.cradle);	
+			
+			
+			//if(typeof(this.options.cradle) == 'class'){
+				//var tmp_class = this.options.cradle;
+				//this.request = new tmp_class(this, {});
+				//this.options.cradle = {};
+			//}
+			//else if(typeof(this.options.cradle) == 'function'){
+				//this.request = this.options.cradle;
+				//this.options.cradle = {};
+			//}
+			////else if(this.options.logs.instance){//winston
+				////this.logger = this.options.logs;
+				////this.options.logs = {};
+			////}
+			//else{
+				//this.request = new(cradle.Connection)(this.options.host, this.options.port, this.options.cradle);
+				////app.use(this.logger.access());
+			//}
+			
+			////app.use(this.logger.access());
+			
+			
+		//}
 		this.request = new(cradle.Connection)(this.options.host, this.options.port, this.options.cradle);
+		
+		/**
+		 * cradle
+		 *  - end
+		 * **/
+		 
+		
 		
 		//if(this.options.db);
 			//this.request.database(this.options.db);
@@ -261,6 +299,8 @@ module.exports = new Class({
 		
 		
 		var instance = this;
+		var conn = this.request;
+		
 		//var api = this.options.api;
 		
 		//if(is_api){
@@ -422,22 +462,12 @@ module.exports = new Class({
 							//console.log(this.options.db);
 							console.log(verb);
 							
-							var req_func = null;
-							var db = keys[0];
-							var cache = keys[1];
-							
-							if(db){
-								var name = re.exec(options.uri)[1];
-								req_func = this.request['database'](name);
-								
-							}
-							else{
-								req_func = this.request;
-							}
-							//console.log(req_func);
-							//request = this.request.database(this.options.db)[verb](
 							
 							var response = function(err, resp, body){
+								//console.log('---req_func.cache.has(options.doc)---')	
+								//console.log(resp._id);
+								//console.log(this.request.database('dashboard').cache.has(resp._id));
+								
 								console.log('--response callback---');
 								console.log(arguments);
 								
@@ -456,7 +486,8 @@ module.exports = new Class({
 									
 									if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
 									
-									callback_alt(err, resp, body, {options: merged, uri: options.uri, route: route.path });
+									//callback_alt(err, resp, body, {options: merged, uri: options.uri, route: route.path });
+									callback_alt(err, resp, {uri: options.uri, route: route.path });
 									
 									if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
 								}
@@ -469,7 +500,8 @@ module.exports = new Class({
 										
 										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
 										
-										callback(err, resp, body, {options: merged, uri: options.uri, route: route.path });
+										//callback(err, resp, body, {options: merged, uri: options.uri, route: route.path });
+										callback(err, resp, {uri: options.uri, route: route.path });
 										
 										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
 										
@@ -479,17 +511,50 @@ module.exports = new Class({
 									
 							}.bind(this);
 							
+							var args = [];
+								
+							if(options.id)
+								args.push(options.id);
+							
+							if(options.rev)
+								args.push(options.rev);
+							
+							if(options.data)
+								args.push(options.data);
+									
+							
+							var req_func = null;
+							var db = keys[0];
+							var cache = keys[1];
 							var cache_result;
+							
+							if(db){
+								var name = re.exec(options.uri)[1];
+								req_func = this.request['database'](name);
+								console.log('---DB----');
+								console.log(name);
+								//console.log(req_func['info'](response));
+							}
+							else{
+								//console.log(this.request);
+								req_func = this.request;
+								
+							}
 							
 							if(cache){
 								console.log('---CACHE----');
-								console.log(cache);
-								//req_func.get(options.id, function(err, resp){
+								console.log(options);
+								console.log(args);
+								//req_func.get(options.doc, function(err, resp){
 									
-									//console.log('--cache result---',result);
+									//console.log('--cache result---',cache_result);
 								
 								//});
-								cache_result = req_func.cache[verb](options.doc);
+								cache_result = req_func.cache[verb](args);
+								
+								console.log('---CACHE RESULT----');
+								console.log(cache_result);
+								
 								if(cache_result || cache.optional == false)
 									response(null, cache_result);
 							}
@@ -497,25 +562,64 @@ module.exports = new Class({
 							if(!cache || (!cache_result && cache.optional)){
 								console.log('---NO CACHE----');
 								
-								if(options.doc){
-									//request = req_func[verb].pass([options.doc, response], this);
-									request = req_func[verb](
-										options.doc,
-										response
-									);
-								}
-								else{
-									//request = req_func[verb].pass(response, this);
-									request = req_func[verb](
-										response
-									);
-								}
+								args.push(response);
+								
+								////console.log(req_func[verb](args[0]))
+								
+								
+							
+								if(args.length == 0)
+									args = null;
+								
+								if(args.length == 1)
+									args = args[0];
+								
+								console.log(args);
+								//console.log(verb);
+								//console.log(conn);
 									
+								req_func[verb].attempt(args, req_func);
+								
+								
+								//request = req_func[verb].pass(args, conn);
+								//request();
+								
+								//if(options.id){
+									////request = req_func[verb].pass([options.doc, response], this);
+									//if(options.options){
+										//request = req_func[verb](
+											//options.id,
+											//options.options,
+											//response
+										//);
+									//}
+									//else{
+										//request = req_func[verb](
+											//options.id,
+											//response
+										//);
+									//}
+									
+								//}
+								//else if(options.options){
+									//request = req_func[verb](
+											//options.options,
+											//response
+										//);
+								//}
+								//else{
+									////request = Function.convert(req_func[verb]).bind(instance, response);
+									//request = req_func[verb](
+										//response
+									//);
+								//}
+								
+								
 								//request = req_func[verb](
 									////options.id,
 									//response
 								//);
-								//request.attempt();
+								//request();
 								
 							}
 							
@@ -532,11 +636,22 @@ module.exports = new Class({
 					
 				}
 				
+				//console.log('returning...', request);
+				
 				//return request;
 				
 			}.bind(this, verb, this[verb]);//copy the original function if there are func like this.get, this.post, etc
 			
 		}.bind(this));
+		
+	},
+	use: function(mount, app){
+		console.log('---AppCradleClient----');
+		console.log(instanceOf(app, AppCradleClient));
+		
+		if(instanceOf(app, AppCradleClient))
+			this.parent(mount, app);
+			
 		
 	},
 	load: function(wrk_dir, options){
@@ -550,12 +665,22 @@ module.exports = new Class({
 			options.jar = options.jar || this.options.jar;
 			options.gzip = options.gzip || this.options.gzip;
 			
+			options.cradle = options.cradle || this.options.cradle;
+			options.host = options.host || this.options.host;
+			options.port = options.port || this.options.port;
+			
 			/**
 			 * subapps will re-use main app logger
 			 * */
 			
 			if(this.logger)	
 				options.logs = this.logger;
+			
+			//console.log(this.request);
+			
+			//if(this.request)
+				//options.cradle = this.request;
+			//options.cradle = null;
 			
 			return options;
 		
@@ -569,4 +694,4 @@ module.exports = new Class({
 	
 });
 
-
+module.exports = AppCradleClient;
