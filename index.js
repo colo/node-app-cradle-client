@@ -13,6 +13,9 @@ var App = require('node-app'),
 var Authorization = require('node-express-authorization');
 	//Authentication = require('node-express-authentication');
 
+var debug = require('debug')('app-cradle-client');
+var debug_events = require('debug')('app-cradle-client:Events');
+var debug_internals = require('debug')('app-cradle-client:Internals');
 
 
 var AppCradleClient = new Class({
@@ -211,8 +214,9 @@ var AppCradleClient = new Class({
 			
 			////app.use(this.logger.access());
 			
-			
 		//}
+		
+		//debug('initialize options %o', this.options);
 		this.request = new(cradle.Connection)(this.options.host, this.options.port, this.options.cradle);
 		
 		/**
