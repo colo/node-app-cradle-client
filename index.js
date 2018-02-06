@@ -477,11 +477,11 @@ var AppCradleClient = new Class({
 								
 								if(err){
 									//this.fireEvent(this.ON_CONNECT_ERROR, {options: merged, uri: options.uri, route: route.path, error: err });
-									this.fireEvent(this.ON_CONNECT_ERROR, {error: err });
+									this.fireEvent(this.ON_CONNECT_ERROR, {uri: options.uri, route: route.path, error: err });
 								}
 								else{
 									//this.fireEvent(this.ON_CONNECT, {options: merged, uri: options.uri, route: route.path, response: resp, body: body });
-									this.fireEvent(this.ON_CONNECT, {response: resp });
+									this.fireEvent(this.ON_CONNECT, {uri: options.uri, route: route.path, response: resp });
 								}
 
 								
