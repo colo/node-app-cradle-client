@@ -278,8 +278,8 @@ var AppCradleClient = new Class({
 		 * - end
 		 * */
 		
-		if(this.options.api && this.options.api.routes)
-			this.apply_routes(this.options.api.routes, true);
+		//if(this.options.api && this.options.api.routes)
+			//this.apply_routes(this.options.api.routes, true);
 		
 		this.apply_routes(this.options.routes, false);
 		
@@ -303,7 +303,7 @@ var AppCradleClient = new Class({
 		
 		
 		var instance = this;
-		var conn = this.request;
+		//var conn = this.request;
 		
 		//var api = this.options.api;
 		
@@ -324,10 +324,12 @@ var AppCradleClient = new Class({
 			 * @callback_alt if typeof function, gets executed instead of the method asigned to the matched route (is an alternative callback, instead of the default usage)
 			 * */
 			instance[verb] = function(verb, original_func, options, callback_alt){
+				//debug_internals('instance[verb] %o', arguments);
+				
 				//console.log('---gets called??---')
 				//console.log(arguments);
 				
-				var request;//the request object to return
+				//var request;//the request object to return
 				
 				var path = '';
 				//if(is_api){
@@ -339,6 +341,8 @@ var AppCradleClient = new Class({
 				
 				
 				options = options || {};
+				
+				debug_internals('instance[verb] routes %o', routes);
 				
 				//if(options.auth === false || options.auth === null){
 					//delete options.auth;
@@ -367,10 +371,16 @@ var AppCradleClient = new Class({
 				//console.log('---ROUTES---');
 				//console.log(routes);
 				
+				debug_internals('routes %o', routes);
+				debug_internals('verb %s', verb);
+				debug_internals('routes[verb] %o', routes[verb]);
+				
 				if(routes[verb]){
 					var uri_matched = false;
 					
 					Array.each(routes[verb], function(route){
+						debug_internals('instance[verb] route.path %s', route.path);
+						
 						//console.log('---ROUTE PATH---');
 						////console.log(route.path);
 						
@@ -389,6 +399,8 @@ var AppCradleClient = new Class({
 						//console.log(path);
 						//console.log(keys);
 						//console.log('--------');
+						
+						
 							
 						if(options.uri != null && re.test(options.uri) == true){
 							uri_matched = true;
@@ -467,13 +479,43 @@ var AppCradleClient = new Class({
 							//console.log(verb);
 							
 							
-							var response = function(err, resp, body){
+							let response = function(err, resp, body){
 								////console.log('---req_func.cache.has(options.doc)---')	
 								////console.log(resp._id);
 								////console.log(this.request.database('dashboard').cache.has(resp._id));
 								
 								//console.log('--response callback---');
 								//console.log(arguments);
+								if(resp){
+									let cast_resp = null;
+									if(resp[0]){
+										cast_resp = [];
+										
+										//console.log(typeof(cast_resp));
+										
+										Array.each(resp, function(value, index){
+											cast_resp.push(value);
+										})
+										
+										resp = cast_resp;
+										
+										//console.log(resp);
+										//console.log(Array.isArray(cast_resp));
+										//throw new Error('Array');
+									}
+									else{
+										cast_resp = {};
+										Object.each(resp, function(value, key){
+											cast_resp[key] = value;
+										})
+										
+										resp = cast_resp;
+										
+										//console.log(resp);
+										//throw new Error('Object');
+									}
+								}
+									
 								
 								if(err){
 									//this.fireEvent(this.ON_CONNECT_ERROR, {options: merged, uri: options.uri, route: route.path, error: err });
@@ -564,66 +606,18 @@ var AppCradleClient = new Class({
 							}
 							
 							if(!cache || (!cache_result && cache.optional)){
-								//console.log('---NO CACHE----');
 								
 								args.push(response);
 								
-								//////console.log(req_func[verb](args[0]))
-								
-								
-							
 								if(args.length == 0)
 									args = null;
 								
 								if(args.length == 1)
 									args = args[0];
-								
-								//console.log(args);
-								////console.log(verb);
-								////console.log(conn);
 									
 								req_func[verb].attempt(args, req_func);
 								
 								
-								//request = req_func[verb].pass(args, conn);
-								//request();
-								
-								//if(options.id){
-									////request = req_func[verb].pass([options.doc, response], this);
-									//if(options.options){
-										//request = req_func[verb](
-											//options.id,
-											//options.options,
-											//response
-										//);
-									//}
-									//else{
-										//request = req_func[verb](
-											//options.id,
-											//response
-										//);
-									//}
-									
-								//}
-								//else if(options.options){
-									//request = req_func[verb](
-											//options.options,
-											//response
-										//);
-								//}
-								//else{
-									////request = Function.convert(req_func[verb]).bind(instance, response);
-									//request = req_func[verb](
-										//response
-									//);
-								//}
-								
-								
-								//request = req_func[verb](
-									////options.id,
-									//response
-								//);
-								//request();
 								
 							}
 							
@@ -652,6 +646,7 @@ var AppCradleClient = new Class({
 	use: function(mount, app){
 		//console.log('---AppCradleClient----');
 		//console.log(instanceOf(app, AppCradleClient));
+		debug('use instanceOf(app, AppCradleClient) %o', instanceOf(app, AppCradleClient));
 		
 		if(instanceOf(app, AppCradleClient))
 			this.parent(mount, app);
