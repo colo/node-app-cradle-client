@@ -1,5 +1,5 @@
 {
-  "name": "app-cradle-client",
+  "name": "node-app-cradle-client",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
@@ -18,6 +18,8 @@
   "homepage": "https://github.com/colo/node-app-cradle-client#readme",
   "dependencies": {
     "cradle-pouchdb-server": "^0.7.1",
-    "path-to-regexp": "^2.1.0"
+    "node-app": "git+https://github.com/colo/node-app.git",
+    "path-to-regexp": "^2.1.0",
+    "server-authorization": "git+https://github.com/colo/node-express-authorization.git"
   }
 }
