@@ -19,6 +19,7 @@
   "dependencies": {
     "cradle-pouchdb-server": "^0.7.1",
     "node-app": "git+https://github.com/colo/node-app.git",
+    "node-express-authorization": "git+https://github.com/colo/node-express-authorization.git",
     "path-to-regexp": "^2.1.0"
   }
 }
