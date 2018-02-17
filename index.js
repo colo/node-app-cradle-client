@@ -523,7 +523,8 @@ var AppCradleClient = new Class({
 								}
 								else{
 									//this.fireEvent(this.ON_CONNECT, {options: merged, uri: options.uri, route: route.path, response: resp, body: body });
-									this.fireEvent(this.ON_CONNECT, {uri: options.uri, route: route.path, response: resp });
+									//this.fireEvent(this.ON_CONNECT, {uri: options.uri, route: route.path, response: resp });
+									this.fireEvent(this.ON_CONNECT, {uri: options.uri, route: route.path, response: resp, options: options });
 								}
 
 								
@@ -533,7 +534,7 @@ var AppCradleClient = new Class({
 									if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
 									
 									//callback_alt(err, resp, body, {options: merged, uri: options.uri, route: route.path });
-									callback_alt(err, resp, {uri: options.uri, route: route.path });
+									callback_alt(err, resp, {uri: options.uri, route: route.path, options: options });
 									
 									if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
 								}
@@ -547,7 +548,7 @@ var AppCradleClient = new Class({
 										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
 										
 										//callback(err, resp, body, {options: merged, uri: options.uri, route: route.path });
-										callback(err, resp, {uri: options.uri, route: route.path });
+										callback(err, resp, {uri: options.uri, route: route.path, options: options });
 										
 										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
 										
