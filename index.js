@@ -395,7 +395,7 @@ var AppCradleClient = new Class({
 						//gzip = route.gzip || false;
 						
 						route.path = route.path || '';
-						options.uri = options.uri || instance.options.db;
+						options.uri = options.uri || '';
 						
 						var keys = []
 						var re = pathToRegexp(route.path, keys);
