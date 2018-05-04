@@ -7,7 +7,7 @@ var App = require('node-app'),
 		//request = require('request'),
 		pathToRegexp = require('path-to-regexp');
 		//semver = require('semver');
-		
+
 
 ////var Logger = require('node-express-logger'),
 //var Authorization = require('node-express-authorization');
@@ -21,14 +21,14 @@ var debug_internals = require('debug')('app-cradle-client:Internals');
 var AppCradleClient = new Class({
   //Implements: [Options, Events],
   Extends: App,
-  
+
   ON_CONNECT: 'onConnect',
   ON_CONNECT_ERROR: 'onConnectError',
-  
+
   request: null,
-  
+
   api: {},
-  
+
   methods: [
 		'create',
 		'exists',
@@ -46,11 +46,11 @@ var AppCradleClient = new Class({
 		 * @attachements
 		 * https://www.npmjs.com/package/cradle#attachments
 		 * */
-		 
+
 		 /**
 			* @server
 			* https://www.npmjs.com/package/cradle#couchdb-server-level
-			* 
+			*
 			* */
 	 'info',
 	 'config',
@@ -60,33 +60,33 @@ var AppCradleClient = new Class({
 			* https://www.npmjs.com/package/cradle#database-level
 			* */
 		'compact',
-		/** 
+		/**
 		 * @cache
 		 * https://www.npmjs.com/package/cradle#cache-api
-		 * */ 
+		 * */
 	],
-  
+
   authorization:null,
   //authentication: null,
   _merged_apps: {},
-  
+
   options: {
-			
+
 		host: '127.0.0.1',
 		port: 5984,
 		db: '',
-		
+
 		cradle: {
 			cache: true,
 			raw: false,
 			forceSave: true,
 		},
-		
-		
+
+
 		logs: null,
-		
+
 		authentication: null,
-		
+
 		//authentication: {
 			//username: 'user',
 			//password: 'pass',
@@ -94,12 +94,12 @@ var AppCradleClient = new Class({
 			//bearer: 'bearer,
 			//basic: false
 		//},
-		
+
 		authorization: null,
-		
-		
+
+
 		/*routes: {
-			
+
 			get: [
 				{
 					path: '/:param',
@@ -119,21 +119,21 @@ var AppCradleClient = new Class({
 				callbacks: ['', 'get']
 				},
 			]
-			
+
 		},*/
-		
+
 		api: {
-			
+
 			content_type: 'application/json',
-			
+
 			path: '',
-			
+
 			version: '0.0.0',
-			
+
 			versioned_path: false, //default false
-			
+
 			//accept_header: 'accept-version', //implement?
-			
+
 			/*routes: {
 				get: [
 					{
@@ -166,10 +166,10 @@ var AppCradleClient = new Class({
 					version: '',
 					},
 				]
-				
+
 			},*/
-			
-			
+
+
 			/*doc: {
 				'/': {
 					type: 'function',
@@ -182,18 +182,18 @@ var AppCradleClient = new Class({
 		},
   },
   initialize: function(options){
-		
+
 		this.parent(options);//override default options
-		
+
 		/**
 		 * cradle
 		 *  - start
 		 * **/
 		//if(this.options.cradle){
 		////console.log('---this.options.cradle----');
-		////console.log(this.options.cradle);	
-			
-			
+		////console.log(this.options.cradle);
+
+
 			//if(typeof(this.options.cradle) == 'class'){
 				//var tmp_class = this.options.cradle;
 				//this.request = new tmp_class(this, {});
@@ -211,39 +211,39 @@ var AppCradleClient = new Class({
 				//this.request = new(cradle.Connection)(this.options.host, this.options.port, this.options.cradle);
 				////app.use(this.logger.access());
 			//}
-			
+
 			////app.use(this.logger.access());
-			
+
 		//}
-		
+
 		//debug('initialize options %o', this.options);
 		this.request = new(cradle.Connection)(this.options.host, this.options.port, this.options.cradle);
-		
+
 		/**
 		 * cradle
 		 *  - end
 		 * **/
-		 
-		
-		
+
+
+
 		//if(this.options.db);
 			//this.request.database(this.options.db);
-		
+
 		if(this.logger)
 			this.logger.extend_app(this);
-		
+
 		/**
 		 * logger
 		 *  - end
 		 * **/
-		
+
 		/**
 		 * authorization
 		 * - start
 		 * */
 		 if(this.options.authorization && this.options.authorization.init !== false){
 			 var authorization = null;
-			 
+
 			 if(typeof(this.options.authorization) == 'class'){
 				 authorization = new this.options.authorization({});
 				 this.options.authorization = {};
@@ -254,18 +254,18 @@ var AppCradleClient = new Class({
 			}
 			else if(this.options.authorization.config){
 				var rbac = this.options.authorization.config;
-				
+
 				if(typeof(this.options.authorization.config) == 'string'){
 					//rbac = fs.readFileSync(path.join(__dirname, this.options.authorization.config ), 'ascii');
 					rbac = fs.readFileSync(this.options.authorization.config , 'ascii');
 					this.options.authorization.config = rbac;
 				}
-				
+
 				/**
 				 * @todo
 				 * should do module injection, avoid "automatigically" importing and starting modules
 				 * */
-				authorization = new Authorization(this, 
+				authorization = new Authorization(this,
 					JSON.decode(
 						rbac
 					)
@@ -274,7 +274,7 @@ var AppCradleClient = new Class({
 				 * *
 				 * */
 			}
-			
+
 			if(authorization){
 				this.authorization = authorization;
 				//app.use(this.authorization.session());
@@ -284,17 +284,17 @@ var AppCradleClient = new Class({
 		 * authorization
 		 * - end
 		 * */
-		
+
 		//if(this.options.api && this.options.api.routes)
 			//this.apply_routes(this.options.api.routes, true);
-		
+
 		this.apply_routes(this.options.routes, false);
-		
-		
+
+
   },
   apply_routes: function(routes, is_api){
 		var uri = '';
-		
+
 		//if(this.options.authentication &&
 			//this.options.authentication.basic &&
 			//(this.options.authentication.user || this.options.authentication.username) &&
@@ -307,13 +307,13 @@ var AppCradleClient = new Class({
 		//else{
 			//uri = this.options.scheme+'://'+this.options.url+':'+this.options.port;
 		//}
-		
-		
+
+
 		var instance = this;
 		//var conn = this.request;
-		
+
 		//var api = this.options.api;
-		
+
 		//if(is_api){
 			////path = ((typeof(api.path) !== "undefined") ? this.options.path+api.path : this.options.path).replace('//', '/');
 			//instance = this.api;
@@ -322,9 +322,9 @@ var AppCradleClient = new Class({
 			////path = (typeof(this.options.path) !== "undefined") ? this.options.path : '';
 			//instance = this;
 		//}
-			
+
 		Array.each(this.methods, function(verb){
-			
+
 			//console.log('---VERB---');
 			//console.log(verb);
 			/**
@@ -332,12 +332,12 @@ var AppCradleClient = new Class({
 			 * */
 			instance[verb] = function(verb, original_func, options, callback_alt){
 				//debug_internals('instance[verb] %o', arguments);
-				
+
 				//console.log('---gets called??---')
 				//console.log(arguments);
-				
+
 				//var request;//the request object to return
-				
+
 				var path = '';
 				//if(is_api){
 					//path = ((typeof(api.path) !== "undefined") ? this.options.path+api.path : this.options.path).replace('//', '/');
@@ -345,12 +345,12 @@ var AppCradleClient = new Class({
 				//else{
 					path = (typeof(this.options.path) !== "undefined") ? this.options.path : '';
 				//}
-				
-				
+
+
 				options = options || {};
-				
+
 				debug_internals('instance[verb] routes %o', routes);
-				
+
 				//if(options.auth === false || options.auth === null){
 					//delete options.auth;
 				//}
@@ -361,10 +361,10 @@ var AppCradleClient = new Class({
 				//{
 					//options.auth = this.options.authentication;
 				//}
-				
+
 				//var content_type = '';
 				//var version = '';
-				
+
 				//if(is_api){
 					//content_type = (typeof(api.content_type) !== "undefined") ? api.content_type : '';
 					//version = (typeof(api.version) !== "undefined") ? api.version : '';
@@ -372,55 +372,55 @@ var AppCradleClient = new Class({
 				//else{
 					//content_type = (typeof(this.options.content_type) !== "undefined") ? this.options.content_type : '';
 				//}
-				
+
 				//var gzip = this.options.gzip || false;
-				
+
 				//console.log('---ROUTES---');
 				//console.log(routes);
-				
+
 				debug_internals('routes %o', routes);
 				debug_internals('verb %s', verb);
 				debug_internals('routes[verb] %o', routes[verb]);
-				
+
 				if(routes[verb]){
 					var uri_matched = false;
-					
+
 					Array.each(routes[verb], function(route){
 						debug_internals('instance[verb] route.path %s', route.path);
-						
+
 						//console.log('---ROUTE PATH---');
 						////console.log(route.path);
-						
+
 						//content_type = (typeof(route.content_type) !== "undefined") ? route.content_type : content_type;
 						//gzip = route.gzip || false;
-						
+
 						route.path = route.path || '';
 						options.uri = options.uri || '';
-						
+
 						var keys = []
 						var re = pathToRegexp(route.path, keys);
-						
+
 						//console.log('route path: '+route.path);
 						//console.log(re.exec(options.uri));
 						//console.log('options.uri: '+options.uri);
 						//console.log(path);
 						//console.log(keys);
 						//console.log('--------');
-						
-						
-							
+
+
+
 						if(options.uri != null && re.test(options.uri) == true){
 							uri_matched = true;
-							
+
 							var callbacks = [];
-							
+
 							/**
 							 * if no callbacks defined for a route, you should use callback_alt param
 							 * */
 							if(route.callbacks && route.callbacks.length > 0){
 								route.callbacks.each(function(fn){
 									////console.log('route function: ' + fn);
-									
+
 									//if the callback function, has the same name as the verb, we had it already copied as "original_func"
 									if(fn == verb){
 										callbacks.push({ func: original_func.bind(this), name: fn });
@@ -428,10 +428,10 @@ var AppCradleClient = new Class({
 									else{
 										callbacks.push({ func: this[fn].bind(this), name: fn });
 									}
-									
+
 								}.bind(this));
 							}
-							
+
 							//if(is_api){
 								////var versioned_path = '';
 								//if(api.versioned_path === true && version != ''){
@@ -442,23 +442,23 @@ var AppCradleClient = new Class({
 									////path += (typeof(route.path) !== "undefined") ? '/' + route.path : '';
 								//}
 							//}
-							
+
 							////if(!is_api){
 								//path += '/'+options.uri;
 							////}
-							
+
 							//path = path.replace('//', '/');
-							
+
 							//if(path == '/')
 								//path = '';
-							
-							
-								
+
+
+
 							//////console.log(path+options.uri);
 							//////console.log('PATH');
 							//////console.log(options.uri);
 							//////console.log(options.uri);
-							
+
 							var merged = {};
 							//Object.merge(
 								//merged,
@@ -475,37 +475,37 @@ var AppCradleClient = new Class({
 									//jar: this.options.jar
 								//}
 							//);
-							
+
 							//console.log('---MERGED----');
 							//console.log(merged);
 							//////console.log(process.env.PROFILING_ENV);
 							//////console.log(this.logger);
-							
+
 							//console.log('---VERB----')
 							////console.log(this.options.db);
 							//console.log(verb);
-							
-							
+
+
 							let response = function(err, resp, body){
-								////console.log('---req_func.cache.has(options.doc)---')	
+								////console.log('---req_func.cache.has(options.doc)---')
 								////console.log(resp._id);
 								////console.log(this.request.database('dashboard').cache.has(resp._id));
-								
+
 								//console.log('--response callback---');
 								//console.log(arguments);
 								if(resp){
 									let cast_resp = null;
 									if(resp[0]){
 										cast_resp = [];
-										
+
 										//console.log(typeof(cast_resp));
-										
+
 										Array.each(resp, function(value, index){
 											cast_resp.push(value);
 										})
-										
+
 										resp = cast_resp;
-										
+
 										//console.log(resp);
 										//console.log(Array.isArray(cast_resp));
 										//throw new Error('Array');
@@ -515,15 +515,15 @@ var AppCradleClient = new Class({
 										Object.each(resp, function(value, key){
 											cast_resp[key] = value;
 										})
-										
+
 										resp = cast_resp;
-										
+
 										//console.log(resp);
 										//throw new Error('Object');
 									}
 								}
-									
-								
+
+
 								if(err){
 									//this.fireEvent(this.ON_CONNECT_ERROR, {options: merged, uri: options.uri, route: route.path, error: err });
 									this.fireEvent(this.ON_CONNECT_ERROR, {uri: options.uri, route: route.path, error: err });
@@ -534,54 +534,54 @@ var AppCradleClient = new Class({
 									this.fireEvent(this.ON_CONNECT, {uri: options.uri, route: route.path, response: resp, options: options });
 								}
 
-								
+
 								if(typeof(callback_alt) == 'function' || callback_alt instanceof Function){
 									var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK[*callback_alt*]';
-									
+
 									if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
-									
+
 									//callback_alt(err, resp, body, {options: merged, uri: options.uri, route: route.path });
 									callback_alt(err, resp, {uri: options.uri, route: route.path, options: options });
-									
+
 									if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
 								}
 								else{
 									Array.each(callbacks, function(fn){
 										var callback = fn.func;
 										var name = fn.name;
-										
+
 										var profile = 'ID['+this.options.id+']:METHOD['+verb+']:PATH['+merged.uri+']:CALLBACK['+name+']';
-										
+
 										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
-										
+
 										//callback(err, resp, body, {options: merged, uri: options.uri, route: route.path });
 										callback(err, resp, {uri: options.uri, route: route.path, options: options });
-										
+
 										if(process.env.PROFILING_ENV && this.logger) this.profile(profile);
-										
+
 									}.bind(this))
 								}
-								
-									
+
+
 							}.bind(this);
-							
+
 							var args = [];
-								
+
 							if(options.id)
 								args.push(options.id);
-							
+
 							if(options.rev)
 								args.push(options.rev);
-							
+
 							if(options.data)
 								args.push(options.data);
-									
-							
+
+
 							var req_func = null;
 							var db = keys[0];
 							var cache = keys[1];
 							var cache_result;
-							
+
 							if(db){
 								var name = re.exec(options.uri)[1];
 								req_func = this.request['database'](name);
@@ -592,78 +592,80 @@ var AppCradleClient = new Class({
 							else{
 								////console.log(this.request);
 								req_func = this.request;
-								
+
 							}
-							
+
 							if(cache){
 								//console.log('---CACHE----');
 								//console.log(options);
 								//console.log(args);
 								//req_func.get(options.doc, function(err, resp){
-									
+
 									////console.log('--cache result---',cache_result);
-								
+
 								//});
 								cache_result = req_func.cache[verb](args);
-								
+
 								//console.log('---CACHE RESULT----');
 								//console.log(cache_result);
-								
+
 								if(cache_result || cache.optional == false)
 									response(null, cache_result);
 							}
-							
+
 							if(!cache || (!cache_result && cache.optional)){
-								
+
 								args.push(response);
-								
+
 								if(args.length == 0)
 									args = null;
-								
+
 								if(args.length == 1)
 									args = args[0];
-									
+
 								req_func[verb].attempt(args, req_func);
-								
-								
-								
+
+
+
 							}
-							
+
 						}
-						
+
 					}.bind(this));
-					
-					if(!uri_matched)
+
+					if(!uri_matched){
+						debug_internals('No routes matched for URI: %s', uri+path+options.uri);
 						throw new Error('No routes matched for URI: '+uri+path+options.uri);
+					}
 				}
 				else{
-					////console.log(routes);
+					debug_internals('No routes defined for method:  %s', verb.toUpperCase());
 					throw new Error('No routes defined for method: '+verb.toUpperCase());
-					
+
 				}
-				
+
 				////console.log('returning...', request);
-				
+
 				//return request;
-				
+
 			}.bind(this, verb, this[verb]);//copy the original function if there are func like this.get, this.post, etc
-			
+
 		}.bind(this));
-		
+
 	},
 	use: function(mount, app){
 		//console.log('---AppCradleClient----');
 		//console.log(instanceOf(app, AppCradleClient));
 		debug('use instanceOf(app, AppCradleClient) %o', instanceOf(app, AppCradleClient));
-		
+
 		if(instanceOf(app, AppCradleClient))
 			this.parent(mount, app);
-			
-		
+
+
 	},
 	load: function(wrk_dir, options){
 		options = options || {};
-		
+
 		var get_options = function(options){
 			options.scheme = options.scheme || this.options.scheme;
 			options.url = options.url || this.options.url;
@@ -671,34 +673,35 @@ var AppCradleClient = new Class({
 			options.authentication = options.authentication || this.options.authentication;
 			options.jar = options.jar || this.options.jar;
 			options.gzip = options.gzip || this.options.gzip;
-			
+
 			options.cradle = options.cradle || this.options.cradle;
 			options.host = options.host || this.options.host;
 			options.port = options.port || this.options.port;
-			
+			options.db = options.db || this.options.db;
+
 			/**
 			 * subapps will re-use main app logger
 			 * */
-			
-			if(this.logger)	
+
+			if(this.logger)
 				options.logs = this.logger;
-			
+
 			////console.log(this.request);
-			
+
 			//if(this.request)
 				//options.cradle = this.request;
 			//options.cradle = null;
-			
+
 			return options;
-		
+
 		}.bind(this);
-		
+
 		this.parent(wrk_dir, get_options(options));
-		
-		
+
+
 	},
-  
-	
+
+
 });
 
 module.exports = AppCradleClient;
