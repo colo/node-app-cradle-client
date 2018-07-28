@@ -77,9 +77,9 @@ var AppCradleClient = new Class({
 		db: '',
 
 		cradle: {
-			cache: true,
+			cache: false,
 			raw: false,
-			forceSave: true,
+			forceSave: false,
 		},
 
 
