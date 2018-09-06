@@ -1,18 +1,7 @@
 'use strict'
 
-'use strict'
-/**
- * https://stackoverflow.com/questions/17575790/environment-detection-node-js-or-browser
- **/
-var isNode=new Function("try {return this===global;}catch(e){return false;}");
-
-var App = require('node-app');
-
-if(isNode){
-	App = require('node-app/load')(App);
-}
-
-var path = require('path'),
+var App = require('node-app'),
+		path = require('path'),
 		fs = require('fs'),
 		cradle = require('cradle-pouchdb-server'),
 		//request = require('request'),

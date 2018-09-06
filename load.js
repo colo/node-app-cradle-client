@@ -1,7 +1,11 @@
 'use strict'
 	
 module.exports = function(App){
-	AppCouchDBClient.implement({
+	
+	App = require('node-app/load')(App);
+	var AppCradleClient = new Class({
+		Extends: App,
+		
 		load: function(wrk_dir, options){
 			options = options || {};
 
@@ -40,6 +44,8 @@ module.exports = function(App){
 
 		}
 	})
+	
+	
 
-	return App
+	return AppCradleClient
 }
